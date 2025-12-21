@@ -10,7 +10,7 @@ public class Card : MonoBehaviour,
     IBeginDragHandler,
     IDragHandler,
     IEndDragHandler {
-    [SerializeField] private CardSO cardSO;
+    public CardSO cardSO;
     [SerializeField] private TMP_Text attackText, healthText, manaCostText;
     [SerializeField] private TMP_Text nameText, actionDescriptionText, loreText;
     [SerializeField] private Image characterArt, bgArt;
@@ -97,12 +97,19 @@ public class Card : MonoBehaviour,
             CardPlacePoint selectedPoint = hit.collider.GetComponent<CardPlacePoint>();
 
             if (selectedPoint.activeCard == null && selectedPoint.isPlayerPoint) {
-                selectedPoint.activeCard = this;
-                assignedPlace = selectedPoint;
 
-                MoveToPoint(selectedPoint.transform.position, Quaternion.identity);
-                inHand = false;
-                theHC.RemoveCardFromHand(this);
+                if (BattleController.instance.playerMana >= cardSO.manaCost) {
+                    selectedPoint.activeCard = this;
+                    assignedPlace = selectedPoint;
+
+                    MoveToPoint(selectedPoint.transform.position, Quaternion.identity);
+                    inHand = false;
+                    theHC.RemoveCardFromHand(this);
+                    BattleController.instance.SpendPlayerMana(cardSO.manaCost);
+                } else {
+                    ReturnToHand();
+                    UIController.instance.ShowManaWarning();
+                }
             } else {
                 ReturnToHand();
             }
@@ -121,7 +128,7 @@ public class Card : MonoBehaviour,
         targetRot = rot;
     }
 
-    private void SetupCard() {
+    public void SetupCard() {
         attackText.text = cardSO.attackPower.ToString();
         healthText.text = cardSO.currentHealth.ToString();
         manaCostText.text = cardSO.manaCost.ToString();
