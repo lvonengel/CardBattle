@@ -11,6 +11,8 @@ public class Card : MonoBehaviour,
     IDragHandler,
     IEndDragHandler {
     public CardSO cardSO;
+    public bool isPlayer;
+    public int attackPower, currentHealth, manaCost;
     [SerializeField] private TMP_Text attackText, healthText, manaCostText;
     [SerializeField] private TMP_Text nameText, actionDescriptionText, loreText;
     [SerializeField] private Image characterArt, bgArt;
@@ -30,29 +32,29 @@ public class Card : MonoBehaviour,
 
     private HandController theHC;
     public CardPlacePoint assignedPlace;
+    public Animator anim;
+    private const string ANIMATION_JUMP = "Jump";
+    private const string ANIMATION_HURT = "Hurt";
+    
 
     private void Start() {
+        if (targetPoint == Vector3.zero) {
+            targetPoint = transform.position;
+            targetRot = transform.rotation;
+        }
         SetupCard();
         theHC = FindAnyObjectByType<HandController>();
     }
 
     private void Update() {
-        transform.position = Vector3.Lerp(
-            transform.position,
-            targetPoint,
-            moveSpeed * Time.deltaTime
-        );
+        transform.position = Vector3.Lerp(transform.position, targetPoint, moveSpeed * Time.deltaTime);
 
-        transform.rotation = Quaternion.RotateTowards(
-            transform.rotation,
-            targetRot,
-            rotateSpeed * Time.deltaTime
-        );
+        transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRot, rotateSpeed * Time.deltaTime);
     }
 
 
     public void OnPointerEnter(PointerEventData eventData) {
-        if (!inHand || isDragging || isHovered) return;
+        if (!inHand || isDragging || isHovered || !isPlayer) return;
 
         isHovered = true;
 
@@ -60,7 +62,7 @@ public class Card : MonoBehaviour,
     }
 
     public void OnPointerExit(PointerEventData eventData) {
-        if (!inHand || isDragging || !isHovered) return;
+        if (!inHand || isDragging || !isHovered || !isPlayer) return;
 
         isHovered = false;
 
@@ -69,14 +71,14 @@ public class Card : MonoBehaviour,
 
 
     public void OnBeginDrag(PointerEventData eventData) {
-        if (!inHand) return;
+        if (!inHand && BattleController.instance.currentPhase != BattleController.TurnOrder.playerActive && !isPlayer) return;
 
         isDragging = true;
         isHovered = false;
     }
 
     public void OnDrag(PointerEventData eventData) {
-        if (!isDragging || !inHand) return;
+        if (!isDragging || !inHand && BattleController.instance.currentPhase != BattleController.TurnOrder.playerActive && !isPlayer) return;
 
         Vector2 mouseScreenPos = Mouse.current.position.ReadValue();
         Ray ray = Camera.main.ScreenPointToRay(mouseScreenPos);
@@ -93,7 +95,7 @@ public class Card : MonoBehaviour,
         Vector2 mouseScreenPos = Mouse.current.position.ReadValue();
         Ray ray = Camera.main.ScreenPointToRay(mouseScreenPos);
 
-        if (Physics.Raycast(ray, out RaycastHit hit, 100f, whatIsPlacement)) {
+        if (Physics.Raycast(ray, out RaycastHit hit, 100f, whatIsPlacement) && BattleController.instance.currentPhase == BattleController.TurnOrder.playerActive) {
             CardPlacePoint selectedPoint = hit.collider.GetComponent<CardPlacePoint>();
 
             if (selectedPoint.activeCard == null && selectedPoint.isPlayerPoint) {
@@ -129,9 +131,11 @@ public class Card : MonoBehaviour,
     }
 
     public void SetupCard() {
-        attackText.text = cardSO.attackPower.ToString();
-        healthText.text = cardSO.currentHealth.ToString();
-        manaCostText.text = cardSO.manaCost.ToString();
+        attackPower = cardSO.attackPower;
+        currentHealth = cardSO.currentHealth;
+        manaCost = cardSO.manaCost;
+
+        UpdateCardDisplay();
 
         nameText.text = cardSO.name;
         actionDescriptionText.text = cardSO.actionDescription;
@@ -139,5 +143,24 @@ public class Card : MonoBehaviour,
 
         characterArt.sprite = cardSO.characterSprite;
         bgArt.sprite = cardSO.bgSprite;
+    }
+
+    public void DamageCard(int damageAmount) {
+        currentHealth -= damageAmount;
+        if (currentHealth <= 0) {
+            currentHealth = 0;
+            assignedPlace.activeCard = null;
+            MoveToPoint(BattleController.instance.discardPoint.position, BattleController.instance.discardPoint.rotation);
+            anim.SetTrigger(ANIMATION_JUMP);
+            Destroy(gameObject, 5f);
+        }
+        anim.SetTrigger(ANIMATION_HURT);
+        UpdateCardDisplay();
+    }
+
+    public void UpdateCardDisplay() {
+        attackText.text = currentHealth.ToString();
+        healthText.text = attackPower.ToString();
+        manaCostText.text = manaCost.ToString();
     }
 }

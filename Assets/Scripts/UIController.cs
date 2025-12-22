@@ -4,9 +4,10 @@ using UnityEngine.UI;
 
 public class UIController : MonoBehaviour {
     public static UIController instance;
-    [SerializeField] private TMP_Text playerManaText;
+    [SerializeField] private TMP_Text playerManaText, playerHealthText, enemyHealthText;
     [SerializeField] private GameObject manaWarning;
-    [SerializeField] private Button drawCardButton;
+    [SerializeField] private Button drawCardButton, endTurnButton;
+    public UIDamageIndicator playerDamage, enemyDamage;
     private float manaWarningTime = 2f;
     private float manaWarningCounter;
 
@@ -16,6 +17,9 @@ public class UIController : MonoBehaviour {
 
         drawCardButton.onClick.AddListener(() => {
             DrawCard();
+        });
+        endTurnButton.onClick.AddListener(() => {
+            EndPlayerTurn();
         });
     }
 
@@ -32,6 +36,14 @@ public class UIController : MonoBehaviour {
         playerManaText.text = "Mana: " + manaAmount;
     }
 
+    public void SetPlayerHealthText(int healthAmount) {
+        playerHealthText.text = "Player Health " + healthAmount;
+    }
+
+    public void SetEnemyHealthText(int healthAmount) {
+        enemyHealthText.text = "Enemy Health " + healthAmount;
+    }
+
     public void ShowManaWarning() {
         manaWarning.SetActive(true);
         manaWarningCounter = manaWarningTime;
@@ -39,6 +51,23 @@ public class UIController : MonoBehaviour {
 
     public void DrawCard() {
         DeckController.instance.DrawCardForMana();
+    }
+
+    public void EndPlayerTurn() {
+        BattleController.instance.EndPlayerTurn();
+    }
+
+    public void ShowEndTurnButton() {
+        endTurnButton.gameObject.SetActive(true);
+    }
+    public void HideEndTurnButton() {
+        endTurnButton.gameObject.SetActive(false);
+    }
+    public void ShowDrawCardButton() {
+        drawCardButton.gameObject.SetActive(true);
+    }
+    public void HideDrawCardButton() {
+        drawCardButton.gameObject.SetActive(false);
     }
     
 
