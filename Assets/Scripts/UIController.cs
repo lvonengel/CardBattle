@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 public class UIController : MonoBehaviour {
     public static UIController instance;
-    [SerializeField] private TMP_Text playerManaText, playerHealthText, enemyHealthText;
+    [SerializeField] private TMP_Text playerManaText, playerHealthText, enemyHealthText, enemyManaText;
     [SerializeField] private GameObject manaWarning;
     [SerializeField] private Button drawCardButton, endTurnButton;
     public UIDamageIndicator playerDamage, enemyDamage;
@@ -34,6 +34,10 @@ public class UIController : MonoBehaviour {
 
     public void SetPlayerManaText(int manaAmount) {
         playerManaText.text = "Mana: " + manaAmount;
+    }
+
+    public void SetEnemyManaText(int manaAmount) {
+        enemyManaText.text = "Mana: " + manaAmount;
     }
 
     public void SetPlayerHealthText(int healthAmount) {

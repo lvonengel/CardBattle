@@ -5,13 +5,13 @@ public class BattleController : MonoBehaviour {
     public static BattleController instance {get; private set;}
     
     public int startingMana = 4, maxMana = 12;
-    public int playerMana;
-    private int currentPlayerMaxMana;
+    public int playerMana, enemyMana;
+    private int currentPlayerMaxMana, currentEnemyMaxMana;
     private int startingCardsAmount = 5;
 
     public enum TurnOrder {playerActive, playerCardAttacks, enemyActive, enemyCardAttacks}
     public TurnOrder currentPhase;
-    private int cardsToDrawPerTurn = 2;
+    public int cardsToDrawPerTurn = 2;
     public Transform discardPoint;
     public int playerHealth, enemyHealth;
 
@@ -22,6 +22,9 @@ public class BattleController : MonoBehaviour {
     private void Start() {
         currentPlayerMaxMana = startingMana;
         FillPlayerMana();
+        currentEnemyMaxMana = startingMana;
+        FillEnemyMana();
+
         DeckController.instance.DrawMultipleCards(startingCardsAmount);
         UIController.instance.SetPlayerHealthText(playerHealth);
         UIController.instance.SetEnemyHealthText(enemyHealth);
@@ -35,12 +38,28 @@ public class BattleController : MonoBehaviour {
 
     public void SpendPlayerMana(int amountToSpend) {
         playerMana -= amountToSpend;
+        if (playerMana < 0) {
+            playerMana = 0;
+        }
         UIController.instance.SetPlayerManaText(playerMana);
     }
 
     public void FillPlayerMana() {
         playerMana = currentPlayerMaxMana;
         UIController.instance.SetPlayerManaText(playerMana);
+    }
+
+    public void SpendEnemyMana(int amountToSpend) {
+        enemyMana -= amountToSpend;
+        if (enemyMana < 0) {
+            enemyMana = 0;
+        }
+        UIController.instance.SetEnemyManaText(enemyMana);
+    }
+
+    public void FillEnemyMana() {
+        enemyMana = currentEnemyMaxMana;
+        UIController.instance.SetEnemyManaText(enemyMana);
     }
 
     public void AdvanceTurn() {
@@ -66,11 +85,15 @@ public class BattleController : MonoBehaviour {
                 CardPointsController.instance.PlayerAttack();
                 break;
             case TurnOrder.enemyActive:
-                CardPointsController.instance.EnemyAttack();
+                if (currentEnemyMaxMana < maxMana) {
+                    currentEnemyMaxMana++;
+                }
+                FillEnemyMana();
+
+                EnemyController.instance.StartAction();
                 break;
             case TurnOrder.enemyCardAttacks:
-                Debug.Log("Skipping enemy card attacks");
-                AdvanceTurn();
+                CardPointsController.instance.EnemyAttack();
                 break;
         }
     }

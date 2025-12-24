@@ -3,8 +3,8 @@ using UnityEngine;
 
 public class CardPointsController : MonoBehaviour {
     public static CardPointsController instance;
-    [SerializeField] private CardPlacePoint[] playerCardPoints, enemyCardPoints;
-    private float timeBetweenAttacks = .25f;
+    public CardPlacePoint[] playerCardPoints, enemyCardPoints;
+    public float timeBetweenAttacks = .5f;
 
     private void Awake() {
         instance = this;
