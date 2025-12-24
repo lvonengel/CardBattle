@@ -8,7 +8,7 @@ using UnityEngine.UI;
 public class MainMenu : MonoBehaviour {
     
     [SerializeField] private Button playButton, quitGameButton;
-    private const string BATTLE_SCENE = "Battle";
+    private const string BATTLE_SCENE = "BattleSelect";
 
     private void Awake() {
         playButton.onClick.AddListener(() => {
