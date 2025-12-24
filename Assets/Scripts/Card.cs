@@ -54,7 +54,7 @@ public class Card : MonoBehaviour,
 
 
     public void OnPointerEnter(PointerEventData eventData) {
-        if (!inHand || isDragging || isHovered || !isPlayer && BattleController.instance.battleEnded) return;
+        if (!inHand || isDragging || isHovered || !isPlayer && BattleController.instance.battleEnded && Time.timeScale == 0f) return;
 
         isHovered = true;
 
@@ -62,7 +62,7 @@ public class Card : MonoBehaviour,
     }
 
     public void OnPointerExit(PointerEventData eventData) {
-        if (!inHand || isDragging || !isHovered || !isPlayer && BattleController.instance.battleEnded) return;
+        if (!inHand || isDragging || !isHovered || !isPlayer && BattleController.instance.battleEnded && Time.timeScale == 0f) return;
 
         isHovered = false;
 
@@ -71,14 +71,14 @@ public class Card : MonoBehaviour,
 
 
     public void OnBeginDrag(PointerEventData eventData) {
-        if (!inHand && BattleController.instance.currentPhase != BattleController.TurnOrder.playerActive && !isPlayer && BattleController.instance.battleEnded) return;
+        if (!inHand && BattleController.instance.currentPhase != BattleController.TurnOrder.playerActive && !isPlayer && BattleController.instance.battleEnded && Time.timeScale == 0f) return;
 
         isDragging = true;
         isHovered = false;
     }
 
     public void OnDrag(PointerEventData eventData) {
-        if (!isDragging || !inHand && BattleController.instance.currentPhase != BattleController.TurnOrder.playerActive && !isPlayer && BattleController.instance.battleEnded) return;
+        if (!isDragging || !inHand && BattleController.instance.currentPhase != BattleController.TurnOrder.playerActive && !isPlayer && BattleController.instance.battleEnded && Time.timeScale == 0f) return;
 
         Vector2 mouseScreenPos = Mouse.current.position.ReadValue();
         Ray ray = Camera.main.ScreenPointToRay(mouseScreenPos);
@@ -90,7 +90,7 @@ public class Card : MonoBehaviour,
     }
 
     public void OnEndDrag(PointerEventData eventData) {
-        if (BattleController.instance.battleEnded) {
+        if (BattleController.instance.battleEnded && Time.timeScale == 0f) {
             return;
         }
 

@@ -1,5 +1,7 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class UIController : MonoBehaviour {
@@ -10,9 +12,13 @@ public class UIController : MonoBehaviour {
     public GameObject battleEndScreen;
     [SerializeField] private Button playAgainButton, selectNewBattleButton, mainMenuButton;
     [SerializeField] private TMP_Text battleResultText;
+    [SerializeField] private Button resumeButton, battleSelectButton, pausedMainMenuButton;
+    [SerializeField] private GameObject pauseScreen;
     public UIDamageIndicator playerDamage, enemyDamage;
     private float manaWarningTime = 2f;
     private float manaWarningCounter;
+    private const string MAIN_MENU_SCENE = "MainMenu";
+    private const string BATTLE_SELECT_SCENE = "BattleSelect";
 
     private void Awake() {
         instance = this;
@@ -33,9 +39,22 @@ public class UIController : MonoBehaviour {
         mainMenuButton.onClick.AddListener(() => {
             MainMenu();
         });
+        resumeButton.onClick.AddListener(() => {
+            PauseUnpause();
+        });
+        battleSelectButton.onClick.AddListener(() => {
+            ChooseNewBattle();
+        });
+        pausedMainMenuButton.onClick.AddListener(() => {
+            MainMenu();
+        });
     }
 
     private void Update() {
+        if (Keyboard.current.escapeKey.wasPressedThisFrame) {
+            PauseUnpause();
+        }
+
         if (manaWarningCounter > 0) {
             manaWarningCounter -= Time.deltaTime;
             if (manaWarningCounter <= 0) {
@@ -91,15 +110,28 @@ public class UIController : MonoBehaviour {
     }
 
     public void MainMenu() {
-        
+        SceneManager.LoadScene(MAIN_MENU_SCENE);
+        Time.timeScale = 1f;
     }
 
     public void RestartLevel() {
-        
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        Time.timeScale = 1f;
     }
 
     public void ChooseNewBattle() {
-        
+        SceneManager.LoadScene(BATTLE_SELECT_SCENE);
+        Time.timeScale = 1f;
+    }
+
+    public void PauseUnpause() {
+        if (pauseScreen.activeSelf == false) {
+            pauseScreen.SetActive(true);
+            Time.timeScale = 0f;
+        } else {
+            pauseScreen.SetActive(false);
+            Time.timeScale = 1f;
+        }
     }
     
 

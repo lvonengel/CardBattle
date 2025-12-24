@@ -17,6 +17,8 @@ public class BattleController : MonoBehaviour {
     public int playerHealth, enemyHealth;
 
     public bool battleEnded;
+    [Range(0f, 1f)]
+    public float playerFirstChance = .5f;
 
     private void Awake() {
         instance = this;
@@ -31,6 +33,12 @@ public class BattleController : MonoBehaviour {
         DeckController.instance.DrawMultipleCards(startingCardsAmount);
         UIController.instance.SetPlayerHealthText(playerHealth);
         UIController.instance.SetEnemyHealthText(enemyHealth);
+
+        if (Random.value > playerFirstChance) {
+            currentPhase = TurnOrder.playerCardAttacks;
+            AdvanceTurn();
+        }
+
     }
 
     private void Update() {
