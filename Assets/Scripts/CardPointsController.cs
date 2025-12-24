@@ -31,6 +31,11 @@ public class CardPointsController : MonoBehaviour {
 
                 yield return new WaitForSeconds(timeBetweenAttacks);
             }
+
+            if (BattleController.instance.battleEnded) {
+                i = playerCardPoints.Length;
+            }
+
         }
         CheckAssignedCards();
         BattleController.instance.AdvanceTurn();
@@ -57,6 +62,11 @@ public class CardPointsController : MonoBehaviour {
 
                 yield return new WaitForSeconds(timeBetweenAttacks);
             }
+
+            if (BattleController.instance.battleEnded) {
+                i = enemyCardPoints.Length;
+            }
+
         }
         CheckAssignedCards();
         BattleController.instance.AdvanceTurn();

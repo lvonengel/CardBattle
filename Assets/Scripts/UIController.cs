@@ -7,6 +7,9 @@ public class UIController : MonoBehaviour {
     [SerializeField] private TMP_Text playerManaText, playerHealthText, enemyHealthText, enemyManaText;
     [SerializeField] private GameObject manaWarning;
     [SerializeField] private Button drawCardButton, endTurnButton;
+    public GameObject battleEndScreen;
+    [SerializeField] private Button playAgainButton, selectNewBattleButton, mainMenuButton;
+    [SerializeField] private TMP_Text battleResultText;
     public UIDamageIndicator playerDamage, enemyDamage;
     private float manaWarningTime = 2f;
     private float manaWarningCounter;
@@ -20,6 +23,15 @@ public class UIController : MonoBehaviour {
         });
         endTurnButton.onClick.AddListener(() => {
             EndPlayerTurn();
+        });
+        playAgainButton.onClick.AddListener(() => {
+            RestartLevel();
+        });
+        selectNewBattleButton.onClick.AddListener(() => {
+            ChooseNewBattle();
+        });
+        mainMenuButton.onClick.AddListener(() => {
+            MainMenu();
         });
     }
 
@@ -72,6 +84,22 @@ public class UIController : MonoBehaviour {
     }
     public void HideDrawCardButton() {
         drawCardButton.gameObject.SetActive(false);
+    }
+
+    public void SetBattleResults(string text) {
+        battleResultText.text = text;
+    }
+
+    public void MainMenu() {
+        
+    }
+
+    public void RestartLevel() {
+        
+    }
+
+    public void ChooseNewBattle() {
+        
     }
     
 

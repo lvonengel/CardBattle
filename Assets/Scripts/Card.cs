@@ -54,7 +54,7 @@ public class Card : MonoBehaviour,
 
 
     public void OnPointerEnter(PointerEventData eventData) {
-        if (!inHand || isDragging || isHovered || !isPlayer) return;
+        if (!inHand || isDragging || isHovered || !isPlayer && BattleController.instance.battleEnded) return;
 
         isHovered = true;
 
@@ -62,7 +62,7 @@ public class Card : MonoBehaviour,
     }
 
     public void OnPointerExit(PointerEventData eventData) {
-        if (!inHand || isDragging || !isHovered || !isPlayer) return;
+        if (!inHand || isDragging || !isHovered || !isPlayer && BattleController.instance.battleEnded) return;
 
         isHovered = false;
 
@@ -71,14 +71,14 @@ public class Card : MonoBehaviour,
 
 
     public void OnBeginDrag(PointerEventData eventData) {
-        if (!inHand && BattleController.instance.currentPhase != BattleController.TurnOrder.playerActive && !isPlayer) return;
+        if (!inHand && BattleController.instance.currentPhase != BattleController.TurnOrder.playerActive && !isPlayer && BattleController.instance.battleEnded) return;
 
         isDragging = true;
         isHovered = false;
     }
 
     public void OnDrag(PointerEventData eventData) {
-        if (!isDragging || !inHand && BattleController.instance.currentPhase != BattleController.TurnOrder.playerActive && !isPlayer) return;
+        if (!isDragging || !inHand && BattleController.instance.currentPhase != BattleController.TurnOrder.playerActive && !isPlayer && BattleController.instance.battleEnded) return;
 
         Vector2 mouseScreenPos = Mouse.current.position.ReadValue();
         Ray ray = Camera.main.ScreenPointToRay(mouseScreenPos);
@@ -90,6 +90,10 @@ public class Card : MonoBehaviour,
     }
 
     public void OnEndDrag(PointerEventData eventData) {
+        if (BattleController.instance.battleEnded) {
+            return;
+        }
+
         isDragging = false;
         // if user stops dragging on a placement point, place card there
         Vector2 mouseScreenPos = Mouse.current.position.ReadValue();

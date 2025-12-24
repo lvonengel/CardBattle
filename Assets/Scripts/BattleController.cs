@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -14,6 +15,8 @@ public class BattleController : MonoBehaviour {
     public int cardsToDrawPerTurn = 2;
     public Transform discardPoint;
     public int playerHealth, enemyHealth;
+
+    public bool battleEnded;
 
     private void Awake() {
         instance = this;
@@ -63,6 +66,9 @@ public class BattleController : MonoBehaviour {
     }
 
     public void AdvanceTurn() {
+        if (battleEnded) {
+            return;
+        }
         currentPhase++;
 
         if ((int)currentPhase >= System.Enum.GetValues(typeof(TurnOrder)).Length) {
@@ -105,12 +111,13 @@ public class BattleController : MonoBehaviour {
     }
 
     public void DamagePlayer(int damageAmount) {
-        if (playerHealth > 0) {
+        if (playerHealth > 0 || !battleEnded) {
             playerHealth -= damageAmount;
             if (playerHealth <= 0) {
                 playerHealth = 0;
 
                 //end battle
+                EndBattle();
             }
             UIController.instance.SetPlayerHealthText(playerHealth);
 
@@ -120,12 +127,13 @@ public class BattleController : MonoBehaviour {
         }
     }
     public void DamageEnemy(int damageAmount) {
-        if (enemyHealth > 0) {
+        if (enemyHealth > 0 || !battleEnded) {
             enemyHealth -= damageAmount;
             if (enemyHealth <= 0) {
                 enemyHealth = 0;
 
                 //end battle
+                EndBattle();
             }
             UIController.instance.SetEnemyHealthText(enemyHealth);
 
@@ -133,6 +141,37 @@ public class BattleController : MonoBehaviour {
             damageClone.damageText.text = damageAmount.ToString();
             damageClone.gameObject.SetActive(true);
         }
+    }
+
+    private void EndBattle() {
+        battleEnded = true;
+        HandController.instance.EmptyHand();
+
+        if (enemyHealth <= 0) {
+            UIController.instance.SetBattleResults("YOU WON");
+            // get rid of every card on enemy side
+            foreach (CardPlacePoint point in CardPointsController.instance.enemyCardPoints) {
+                if (point.activeCard != null) {
+                    point.activeCard.MoveToPoint(discardPoint.position, point.activeCard.transform.rotation);
+                }
+            }
+
+        } else {
+            UIController.instance.SetBattleResults("YOU LOST");
+            // get rid of every card on player's side
+            foreach (CardPlacePoint point in CardPointsController.instance.playerCardPoints) {
+                if (point.activeCard != null) {
+                    point.activeCard.MoveToPoint(discardPoint.position, point.activeCard.transform.rotation);
+                }
+            }
+        }
+
+        StartCoroutine(ShowResultsCo());
+    }
+
+    IEnumerator ShowResultsCo() {
+        yield return new WaitForSeconds(1f);
+        UIController.instance.battleEndScreen.SetActive(true);
     }
 
 }
